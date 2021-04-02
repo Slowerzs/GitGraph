@@ -7,4 +7,6 @@ RUN mkdir /app
 COPY ./src /app
 RUN python3 -m pip install -r /app/requirements.txt
 
+WORKDIR /app
+
 ENTRYPOINT ["python3", "/app/main.py"]

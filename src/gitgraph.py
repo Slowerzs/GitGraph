@@ -35,14 +35,15 @@ class GitGraph:
                 for parent in ref.parents:
                     graph.edge(ref.hexsha, parent.hexsha)	
 
+            return graph
+
 	def createSubGraph(self, branch: Head) -> Digraph:
-		graph = Digraph()
-		repo = branch.repo
+            graph = Digraph()
+            repo = branch.repo
 
-		for ref in repo.iter_commits(branch):
-			graph.node(ref.hexsha)
-			for parent in ref.parents:
-				graph.edge(ref.hexsha, parent.hexsha)	
-
-
-		
+            for ref in repo.iter_commits(branch):
+                    graph.node(ref.hexsha)
+                    for parent in ref.parents:
+                            graph.edge(ref.hexsha, parent.hexsha)	
+            
+            return graph
