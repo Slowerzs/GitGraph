@@ -31,7 +31,7 @@ class GitGraph:
             repo = branch.repo
 
             for ref in repo.iter_commits(branch):
-                graph.node(ref.hexsha)
+                graph.node(ref.hexsha, label=ref.message)
                 for parent in ref.parents:
                     graph.edge(ref.hexsha, parent.hexsha)	
 
@@ -42,7 +42,7 @@ class GitGraph:
             repo = branch.repo
 
             for ref in repo.iter_commits(branch):
-                    graph.node(ref.hexsha)
+                    graph.node(ref.hexsha, label=ref.message)
                     for parent in ref.parents:
                             graph.edge(ref.hexsha, parent.hexsha)	
             
