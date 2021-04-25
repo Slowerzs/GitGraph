@@ -40,21 +40,27 @@ class GitGraph:
     def createSubGraphRemote(self, branch: Remote, prefix: str) -> Digraph:
         graph = Digraph()
         repo = branch.repo
-
+        i = 0
         for ref in repo.iter_commits(branch):
             graph.node(prefix + ref.hexsha, label=ref.message)
+            if i==0 :
+                graph.node(prefix+"remote", label="Remote "+prefix[:-1], color="grey", fontcolor="grey")
+                graph.edge(prefix+"remote", prefix + ref.hexsha, color="grey")
             for parent in ref.parents:
-                graph.edge(prefix + ref.hexsha, prefix + parent.hexsha)	
+                graph.edge(prefix + ref.hexsha, prefix + parent.hexsha)
+            i = 1
 
         return graph
 
     def createSubGraph(self, branch: Head, prefix: str) -> Digraph:
         graph = Digraph()
         repo = branch.repo
+        graph.node(prefix+"local", label="Dépot local "+prefix[:-1], color="grey", fontcolor="grey")
+        graph.edge(prefix+"local", prefix + branch.commit.hexsha, color="grey")
         for ref in repo.iter_commits(branch):
                 graph.node(prefix + ref.hexsha, label=ref.message)
                 for parent in ref.parents:
-                        graph.edge(prefix + ref.hexsha, prefix + parent.hexsha)	
+                    graph.edge(prefix + ref.hexsha, prefix + parent.hexsha)
         
         return graph
 
@@ -73,5 +79,4 @@ class GitGraph:
             i += 1
 
         return graph
-
 
