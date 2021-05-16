@@ -1,5 +1,5 @@
 import gitgraph
-from os import listdir, path
+from os import listdir, path, urandom
 from graphviz import Digraph
 from git import Repo
 import shlex
@@ -13,16 +13,31 @@ class GitGraphDrawer():
 
     def switch(self, gitName: str) -> None:
         self.currentRepo = Repo(path.join("/sources", gitName))
+        self.currentRepo.config_writer().set_value("user", "name", "myusername").release()
+        self.currentRepo.config_writer().set_value("user", "email", "myemail@localhost").release()
 
     def render(self) -> None: 
         ggraph = gitgraph.GitGraph([path.join("/sources", i) for i in listdir("/sources")])
         ggraph.render()
 
-    def commmit(self, commitMessage: str) -> None:
+    def commit(self, commitMessage: str) -> None:
         self.currentRepo.git.commit(m=commitMessage)
 
-    def add(self, path: str) -> None:
-        self.currentRepo.git.add(path)
+    def add(self, pathToAdd: str) -> None:
+        fullPath = path.join(self.currentRepo.working_dir, pathToAdd)
+        if path.isfile(fullPath):
+            #Modifications are needed for add to work, so we add random content
+            with open(fullPath, "a") as f:
+                f.write(urandom(50).hex())
+            self.currentRepo.git.add(pathToAdd)
+        elif path.isdir(fullPath):
+            #Modifications are needed for add to work, so we add a new file
+            open(path.join(fullPath, urandom(50).hex()), "w").close()
+            self.currentRepo.git.add(pathToAdd)
+        else:
+            #Modifications are needed for add to work, so we create a new file
+            open(fullPath, "w").close()
+            self.currentRepo.git.add(pathToAdd)
 
 if __name__ == '__main__':
     
