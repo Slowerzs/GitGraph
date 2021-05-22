@@ -1,24 +1,46 @@
 import gitgraph
+import sys
+from string import Template
 from os import listdir, path, urandom
 from graphviz import Digraph
 from git import Repo
 import shlex
 import argparse
-
+from shutil import copytree
+from git import Repo, InvalidGitRepositoryError
 
 class GitGraphDrawer():
 
     def __init__(self):
         self.currentRepo = None
+        self.count = 1
+
+        copytree("/sources", "/locals")
+
+        Repo.init("/remote", bare=True)
+
+        try:
+            for repo in [Repo(path.join("/locals", i)) for i in listdir("/locals")]:
+                repo.create_remote("custom_remote", "/remote/")
+        except InvalidGitRepositoryError:
+            print("Un des dossiers proposé n'est pas un dépot git.")
+            sys.exit(1)
+
+        repo1 = Repo("/locals/git1")
+        repo1.git.push("custom_remote", "main")
+
+    def push(self) -> None:
+        self.currentRepo.git.push("custom_remote", "main")
 
     def switch(self, gitName: str) -> None:
-        self.currentRepo = Repo(path.join("/sources", gitName))
+        self.currentRepo = Repo(path.join("/locals", gitName))
         self.currentRepo.config_writer().set_value("user", "name", "myusername").release()
         self.currentRepo.config_writer().set_value("user", "email", "myemail@localhost").release()
 
-    def render(self) -> None: 
-        ggraph = gitgraph.GitGraph([path.join("/sources", i) for i in listdir("/sources")])
-        ggraph.render()
+    def render(self) -> None:
+        ggraph = gitgraph.GitGraph([path.join("/locals", i) for i in listdir("/locals")])
+        ggraph.render(self.count)
+        self.count += 1
 
     def commit(self, commitMessage: str) -> None:
         self.currentRepo.git.commit(m=commitMessage)
@@ -39,8 +61,31 @@ class GitGraphDrawer():
             open(fullPath, "w").close()
             self.currentRepo.git.add(pathToAdd)
 
-if __name__ == '__main__':
+    def generateHtml(self) -> None:
+        files_data = []
     
+        for filename in listdir("/output"):
+            if filename.endswith(".pdf"):
+                continue
+
+            with open(path.join("/output", filename), 'r') as f:
+                file_data = f.read()
+                files_data.append('`' + file_data.replace('`', '\\`') + '`')
+
+        data = ','.join(map(str, files_data))
+
+        with open("template.html", "r") as f:
+            template_str = f.read()
+
+        template = Template(template_str)
+        output = template.substitute({"data": data})
+
+        with open("/output/output.html", "w") as f:
+            f.write(output)
+
+
+if __name__ == '__main__':
+
 
     graphDrawer = GitGraphDrawer()
 
@@ -52,6 +97,8 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     subparser = parser.add_subparsers(dest='subcommand')
 
+    parser_push = subparser.add_parser('push')
+
     parser_commit = subparser.add_parser('commit')
     parser_commit.add_argument("-m")
 
@@ -60,12 +107,14 @@ if __name__ == '__main__':
 
     parser_commit = subparser.add_parser('add')
     parser_commit.add_argument("path")
-    
+
     parser_commit = subparser.add_parser('render')
-    
+
     for command in commands:
         args = parser.parse_args(shlex.split(command))
-        
+
+        if args.subcommand == "push":
+            graphDrawer.push()
         if args.subcommand == "switch":
             graphDrawer.switch(args.branch_name)
         if args.subcommand == "render":
@@ -75,5 +124,6 @@ if __name__ == '__main__':
         if args.subcommand == "add":
             graphDrawer.add(args.path)
 
+    graphDrawer.generateHtml()
 
 

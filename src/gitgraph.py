@@ -8,21 +8,20 @@ class GitGraph:
     def __init__(self, paths):
         self.repos = []
         self.branches = []
-        self.remotes = []
-            
+        self.remote = Repo("/remote")
+
         for path in paths:
             try:
                 self.repos.append(Repo(path))
             except InvalidGitRepositoryError:
                 print("Un des dossiers proposé n'est pas un dépot git.")
                 sys.exit(1)
-        
-        self.branches += self.getBranches()
-        self.remotes += self.getRemotes()
-        
 
-    def render(self) -> None:
-        self.generateFinalGraph(self.branches, self.remotes).render("/output/output_dot")
+
+        self.branches += self.getBranches()
+
+    def render(self, count: int) -> None:
+        self.generateFinalGraph(self.branches).render("/output/output_dot_" + str(count))
 
 
     def getBranches(self) -> List[Head]:
@@ -30,18 +29,12 @@ class GitGraph:
         for repo in self.repos :
             branches += repo.branches
         return branches
-        
-    def getRemotes(self) -> List[Remote]:
-        remotes = []
-        for repo in self.repos :
-            remotes += repo.remotes
-        return list(set(remotes))
-        
-    def createSubGraphRemote(self, branch: Remote, prefix: str) -> Digraph:
+
+    def createSubGraphRemote(self, prefix: str) -> Digraph:
         graph = Digraph()
-        repo = branch.repo
+        repo = self.remote
         i = 0
-        for ref in repo.iter_commits(branch):
+        for ref in repo.iter_commits("main"):
             graph.node(prefix + ref.hexsha, label=ref.message)
             if i==0 :
                 graph.node(prefix+"remote", label="Remote "+prefix[:-1], color="grey", fontcolor="grey")
@@ -58,14 +51,14 @@ class GitGraph:
         graph.node(prefix+"local", label="Dépot local "+prefix[:-1], color="grey", fontcolor="grey")
         graph.edge(prefix+"local", prefix + branch.commit.hexsha, color="grey")
         for ref in repo.iter_commits(branch):
-                graph.node(prefix + ref.hexsha, label=ref.message)
-                for parent in ref.parents:
-                    graph.edge(prefix + ref.hexsha, prefix + parent.hexsha)
-        
+            graph.node(prefix + ref.hexsha, label=ref.message)
+            for parent in ref.parents:
+                graph.edge(prefix + ref.hexsha, prefix + parent.hexsha)
+
         return graph
 
 
-    def generateFinalGraph(self, branches: List[Head], remotes: List[Remote]) -> Digraph:
+    def generateFinalGraph(self, branches: List[Head]) -> Digraph:
         graph = Digraph()
         i = 0
         for branch in branches:
@@ -73,10 +66,7 @@ class GitGraph:
             graph.subgraph(temp_graph)
             i += 1
 
-        for remote in remotes:
-            temp_graph = self.createSubGraphRemote(remote, str(i) + "_")
-            graph.subgraph(temp_graph)
-            i += 1
+        temp_graph = self.createSubGraphRemote(str(i) + "_")
+        graph.subgraph(temp_graph)
 
         return graph
-
