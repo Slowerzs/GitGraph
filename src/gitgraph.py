@@ -20,8 +20,8 @@ class GitGraph:
 
         self.branches += self.getBranches()
 
-    def render(self, count: int) -> None:
-        self.generateFinalGraph(self.branches).render("/output/output_dot_" + str(count))
+    def render(self, count: int, startBranch: Head, endBranch: Head) -> None:
+        self.generateFinalGraph(self.branches, startBranch, endBranch).render("/output/output_dot_" + str(count))
 
 
     def getBranches(self) -> List[Head]:
@@ -34,7 +34,7 @@ class GitGraph:
         graph = Digraph()
         repo = self.remote
         i = 0
-        for ref in repo.iter_commits("main"):
+        for ref in repo.iter_commits("main"):#ajouter les autres branches
             graph.node(prefix + ref.hexsha, label=ref.message)
             if i==0 :
                 graph.node(prefix+"remote", label="Remote "+prefix[:-1], color="grey", fontcolor="grey")
@@ -48,7 +48,7 @@ class GitGraph:
     def createSubGraph(self, branch: Head, prefix: str) -> Digraph:
         graph = Digraph()
         repo = branch.repo
-        graph.node(prefix+"local", label="Dépot local "+prefix[:-1], color="grey", fontcolor="grey")
+        graph.node(prefix+"local", label="Dépot local " + prefix[:-1], color="grey", fontcolor="grey")
         graph.edge(prefix+"local", prefix + branch.commit.hexsha, color="grey")
         for ref in repo.iter_commits(branch):
             graph.node(prefix + ref.hexsha, label=ref.message)
@@ -58,11 +58,13 @@ class GitGraph:
         return graph
 
 
-    def generateFinalGraph(self, branches: List[Head]) -> Digraph:
+    def generateFinalGraph(self, branches: List[Head], startBranch: Head, endBranch: Head) -> Digraph:
         graph = Digraph()
         i = 0
         for branch in branches:
             temp_graph = self.createSubGraph(branch, str(i) + "_")
+            if branch == startBranch:
+                pass # draw arrow
             graph.subgraph(temp_graph)
             i += 1
 

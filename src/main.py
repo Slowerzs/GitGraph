@@ -9,6 +9,11 @@ import argparse
 from shutil import copytree
 from git import Repo, InvalidGitRepositoryError
 
+class PushFailedException(Exception):
+    def __init__(self, error_message):
+        self.message = error_message
+        super().__init__(error_message)
+
 class GitGraphDrawer():
 
     def __init__(self):
@@ -29,17 +34,25 @@ class GitGraphDrawer():
         repo1 = Repo("/locals/git1")
         repo1.git.push("custom_remote", "main")
 
-    def push(self) -> None:
-        self.currentRepo.git.push("custom_remote", "main")
+    def push(self, branch: str) -> None:
+        remote = self.currentRepo.remote("custom_remote")
+        summary = remote.push(branch)[0]
+        if remote.repo.head.commit.hexsha.startswith(summary.split("..").strip()[1]):
+            #push successful
+            return
+        else:
+            #push failed :(
+            raise PushFailedException(summary.strip())
+            
 
     def switch(self, gitName: str) -> None:
         self.currentRepo = Repo(path.join("/locals", gitName))
         self.currentRepo.config_writer().set_value("user", "name", "myusername").release()
         self.currentRepo.config_writer().set_value("user", "email", "myemail@localhost").release()
 
-    def render(self) -> None:
+    def render(self, startBranch=None, endBranch=None) -> None:
         ggraph = gitgraph.GitGraph([path.join("/locals", i) for i in listdir("/locals")])
-        ggraph.render(self.count)
+        ggraph.render(self.count, startBranch, endBranch)
         self.count += 1
 
     def commit(self, commitMessage: str) -> None:
@@ -98,6 +111,8 @@ if __name__ == '__main__':
     subparser = parser.add_subparsers(dest='subcommand')
 
     parser_push = subparser.add_parser('push')
+    parser_commit.add_argument("repository", default="custom_remote")# à changer
+    parser_commit.add_argument("branch", default="main")
 
     parser_commit = subparser.add_parser('commit')
     parser_commit.add_argument("-m")
@@ -114,7 +129,27 @@ if __name__ == '__main__':
         args = parser.parse_args(shlex.split(command))
 
         if args.subcommand == "push":
-            graphDrawer.push()
+            
+
+            target = None
+
+            for branch in self.currentRepo.remote("custom_remote").repo.branches:
+                if branch.name == args.branch:
+                    target = branch
+
+            if target is None:
+                print("push to non existant branch")
+                sys.exit(1)
+
+            try:
+                graphDrawer.push(args.branch)
+                graphDrawer.render()
+            except PushFailedException as e:
+                graphDrawer.render(startBranch=self.currentRepo.active_branch, endBranch=target)
+
+
+
+
         if args.subcommand == "switch":
             graphDrawer.switch(args.branch_name)
         if args.subcommand == "render":
