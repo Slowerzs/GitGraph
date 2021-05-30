@@ -9,12 +9,16 @@ digraph {
 	}
 	subgraph cluster1 {
 		"1_local" [label="Dépot local 1" color=grey fontcolor=grey]
-		"1_local" -> "1_a34df5200d1a083d9d616e6fdb613907d02ded6c" [color=grey]
+		"1_local" -> "1_1add4f5817d2f7e75b69491a0a157192f9a8a9a5" [color=grey]
+		"1_1add4f5817d2f7e75b69491a0a157192f9a8a9a5" [label="Hello from local2"]
+		"1_1add4f5817d2f7e75b69491a0a157192f9a8a9a5" -> "1_a34df5200d1a083d9d616e6fdb613907d02ded6c"
 		"1_a34df5200d1a083d9d616e6fdb613907d02ded6c" [label=bobcat]
 	}
 	subgraph cluster2 {
 		"2_remote" [label="Dépot distant" color=grey fontcolor=grey]
-		"2_remote" -> "2_26ab8c0d394e25341e23c5ec1c2c91095c813fbc" [color=grey]
+		"2_remote" -> "2_0feb02ad34b0dec631871457aed23b9b3bd9ec8c" [color=grey]
+		"2_0feb02ad34b0dec631871457aed23b9b3bd9ec8c" [label="Hello from local1"]
+		"2_0feb02ad34b0dec631871457aed23b9b3bd9ec8c" -> "2_26ab8c0d394e25341e23c5ec1c2c91095c813fbc"
 		"2_26ab8c0d394e25341e23c5ec1c2c91095c813fbc" [label=slt]
 	}
 }

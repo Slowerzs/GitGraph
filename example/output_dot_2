@@ -1,58 +1,23 @@
 digraph {
-	{
+	compound=true
+	subgraph cluster0 {
 		"0_local" [label="Dépot local 0" color=grey fontcolor=grey]
-		"0_local" -> "0_5e299b3587f0866ce08edfbf32ca8a9c4cb30f61" [color=grey]
-		"0_5e299b3587f0866ce08edfbf32ca8a9c4cb30f61" [label=slt
-]
-		"0_5e299b3587f0866ce08edfbf32ca8a9c4cb30f61" -> "0_5655f2f6025bd5aba00dc06fa5d2abf86da7f172"
-		"0_5655f2f6025bd5aba00dc06fa5d2abf86da7f172" [label="Ajout de la fonctionnalité de commit/add dans les commandes
-"]
-		"0_5655f2f6025bd5aba00dc06fa5d2abf86da7f172" -> "0_e83d7a2806d880acd0ed523c0becc18aace395ad"
-		"0_e83d7a2806d880acd0ed523c0becc18aace395ad" [label="added commands.txt parsing
-"]
-		"0_e83d7a2806d880acd0ed523c0becc18aace395ad" -> "0_2d0fd6095a818ba163fbaa0a564e0a47d2013bc3"
-		"0_2d0fd6095a818ba163fbaa0a564e0a47d2013bc3" [label="Ajout d'une première version des tags"]
-		"0_2d0fd6095a818ba163fbaa0a564e0a47d2013bc3" -> "0_df235018a25e392e07f491fa90d3a41386aa6084"
-		"0_df235018a25e392e07f491fa90d3a41386aa6084" [label="Correction de l'utilisation multi branches
-"]
-		"0_df235018a25e392e07f491fa90d3a41386aa6084" -> "0_f8a2601f7d5ece9e8f50df5e7b48cbb23921f27b"
-		"0_f8a2601f7d5ece9e8f50df5e7b48cbb23921f27b" [label="Ajout des messages des commits sur le graph
-"]
-		"0_f8a2601f7d5ece9e8f50df5e7b48cbb23921f27b" -> "0_2cc6e69dbbf487bae85ef2a1e58a11c8425de544"
-		"0_2cc6e69dbbf487bae85ef2a1e58a11c8425de544" [label="ajout de la gestion docker du projet
-"]
-		"0_2cc6e69dbbf487bae85ef2a1e58a11c8425de544" -> "0_74d8efb9dfc6ac52e2542c04cb719cb651893855"
-		"0_74d8efb9dfc6ac52e2542c04cb719cb651893855" [label="Ajout de la premiere version de l'outil
-"]
-		"0_74d8efb9dfc6ac52e2542c04cb719cb651893855" -> "0_80d29efd844b7633712c1f4bb5b50d6d532a56e0"
-		"0_80d29efd844b7633712c1f4bb5b50d6d532a56e0" [label="Initial commit"]
+		"0_local" -> "0_0feb02ad34b0dec631871457aed23b9b3bd9ec8c" [color=grey]
+		"0_0feb02ad34b0dec631871457aed23b9b3bd9ec8c" [label="Hello from local1"]
+		"0_0feb02ad34b0dec631871457aed23b9b3bd9ec8c" -> "0_26ab8c0d394e25341e23c5ec1c2c91095c813fbc"
+		"0_26ab8c0d394e25341e23c5ec1c2c91095c813fbc" [label=slt]
 	}
-	{
-		"1_5e299b3587f0866ce08edfbf32ca8a9c4cb30f61" [label=slt
-]
-		"1_remote" [label="Remote 1" color=grey fontcolor=grey]
-		"1_remote" -> "1_5e299b3587f0866ce08edfbf32ca8a9c4cb30f61" [color=grey]
-		"1_5e299b3587f0866ce08edfbf32ca8a9c4cb30f61" -> "1_5655f2f6025bd5aba00dc06fa5d2abf86da7f172"
-		"1_5655f2f6025bd5aba00dc06fa5d2abf86da7f172" [label="Ajout de la fonctionnalité de commit/add dans les commandes
-"]
-		"1_5655f2f6025bd5aba00dc06fa5d2abf86da7f172" -> "1_e83d7a2806d880acd0ed523c0becc18aace395ad"
-		"1_e83d7a2806d880acd0ed523c0becc18aace395ad" [label="added commands.txt parsing
-"]
-		"1_e83d7a2806d880acd0ed523c0becc18aace395ad" -> "1_2d0fd6095a818ba163fbaa0a564e0a47d2013bc3"
-		"1_2d0fd6095a818ba163fbaa0a564e0a47d2013bc3" [label="Ajout d'une première version des tags"]
-		"1_2d0fd6095a818ba163fbaa0a564e0a47d2013bc3" -> "1_df235018a25e392e07f491fa90d3a41386aa6084"
-		"1_df235018a25e392e07f491fa90d3a41386aa6084" [label="Correction de l'utilisation multi branches
-"]
-		"1_df235018a25e392e07f491fa90d3a41386aa6084" -> "1_f8a2601f7d5ece9e8f50df5e7b48cbb23921f27b"
-		"1_f8a2601f7d5ece9e8f50df5e7b48cbb23921f27b" [label="Ajout des messages des commits sur le graph
-"]
-		"1_f8a2601f7d5ece9e8f50df5e7b48cbb23921f27b" -> "1_2cc6e69dbbf487bae85ef2a1e58a11c8425de544"
-		"1_2cc6e69dbbf487bae85ef2a1e58a11c8425de544" [label="ajout de la gestion docker du projet
-"]
-		"1_2cc6e69dbbf487bae85ef2a1e58a11c8425de544" -> "1_74d8efb9dfc6ac52e2542c04cb719cb651893855"
-		"1_74d8efb9dfc6ac52e2542c04cb719cb651893855" [label="Ajout de la premiere version de l'outil
-"]
-		"1_74d8efb9dfc6ac52e2542c04cb719cb651893855" -> "1_80d29efd844b7633712c1f4bb5b50d6d532a56e0"
-		"1_80d29efd844b7633712c1f4bb5b50d6d532a56e0" [label="Initial commit"]
+	subgraph cluster1 {
+		"1_local" [label="Dépot local 1" color=grey fontcolor=grey]
+		"1_local" -> "1_a34df5200d1a083d9d616e6fdb613907d02ded6c" [color=grey]
+		"1_a34df5200d1a083d9d616e6fdb613907d02ded6c" [label=bobcat]
 	}
+	subgraph cluster2 {
+		"2_remote" [label="Dépot distant" color=grey fontcolor=grey]
+		"2_remote" -> "2_0feb02ad34b0dec631871457aed23b9b3bd9ec8c" [color=grey]
+		"2_0feb02ad34b0dec631871457aed23b9b3bd9ec8c" [label="Hello from local1"]
+		"2_0feb02ad34b0dec631871457aed23b9b3bd9ec8c" -> "2_26ab8c0d394e25341e23c5ec1c2c91095c813fbc"
+		"2_26ab8c0d394e25341e23c5ec1c2c91095c813fbc" [label=slt]
+	}
+	"0_0feb02ad34b0dec631871457aed23b9b3bd9ec8c" -> "2_0feb02ad34b0dec631871457aed23b9b3bd9ec8c" [color=blue constraint=false]
 }
