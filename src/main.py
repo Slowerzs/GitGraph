@@ -51,6 +51,9 @@ class GitGraphDrawer():
         self.currentRepo.config_writer().set_value("user", "name", "myusername").release()
         self.currentRepo.config_writer().set_value("user", "email", "myemail@localhost").release()
 
+    def pull(self, remote_branch: str) -> None:
+        self.currentRepo.git.pull("custom_origin", remote_branch)
+
     def render(self, startBranch=None, endBranch=None, failed=False) -> None:
         ggraph = gitgraph.GitGraph([path.join("/locals", i) for i in listdir("/locals")])
         ggraph.render(self.count, startBranch, endBranch, failed)
