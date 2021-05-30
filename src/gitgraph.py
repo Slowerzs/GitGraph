@@ -20,8 +20,8 @@ class GitGraph:
 
         self.branches += self.getBranches()
 
-    def render(self, count: int, startBranch: Head, endBranch: Head) -> None:
-        self.generateFinalGraph(self.branches, startBranch, endBranch).render("/output/output_dot_" + str(count))
+    def render(self, count: int, startBranch: Head, endBranch: Head, failed: bool) -> None:
+        self.generateFinalGraph(self.branches, startBranch, endBranch, failed).render("/output/output_dot_" + str(count))
 
 
     def getBranches(self) -> List[Head]:
@@ -30,45 +30,62 @@ class GitGraph:
             branches += repo.branches
         return branches
 
-    def createSubGraphRemote(self, prefix: str) -> Digraph:
-        graph = Digraph()
+    def createSubGraphRemote(self, branch: Head, prefix: str) -> Digraph:
+
         repo = self.remote
-        i = 0
-        for ref in repo.iter_commits("main"):#ajouter les autres branches
-            graph.node(prefix + ref.hexsha, label=ref.message)
-            if i==0 :
-                graph.node(prefix+"remote", label="Remote "+prefix[:-1], color="grey", fontcolor="grey")
-                graph.edge(prefix+"remote", prefix + ref.hexsha, color="grey")
+        graph = Digraph(name="cluster" + prefix.split("_")[0])
+        graph.node(prefix+"remote", label="Dépot distant", color="grey", fontcolor="grey")
+        graph.edge(prefix+"remote", prefix + branch.commit.hexsha, color="grey")
+        for ref in repo.iter_commits(branch.name):
+            graph.node(prefix + ref.hexsha, label=ref.message.strip())
             for parent in ref.parents:
                 graph.edge(prefix + ref.hexsha, prefix + parent.hexsha)
-            i = 1
 
         return graph
 
     def createSubGraph(self, branch: Head, prefix: str) -> Digraph:
-        graph = Digraph()
+        graph = Digraph(name="cluster" + prefix.split("_")[0])
         repo = branch.repo
         graph.node(prefix+"local", label="Dépot local " + prefix[:-1], color="grey", fontcolor="grey")
         graph.edge(prefix+"local", prefix + branch.commit.hexsha, color="grey")
         for ref in repo.iter_commits(branch):
-            graph.node(prefix + ref.hexsha, label=ref.message)
+            graph.node(prefix + ref.hexsha, label=ref.message.strip())
             for parent in ref.parents:
                 graph.edge(prefix + ref.hexsha, prefix + parent.hexsha)
 
         return graph
 
 
-    def generateFinalGraph(self, branches: List[Head], startBranch: Head, endBranch: Head) -> Digraph:
+    def generateFinalGraph(self, branches: List[Head], startBranch: Head, endBranch: Head, failed: bool) -> Digraph:
         graph = Digraph()
+        graph.attr(compound='true')
         i = 0
+
+        colors = { False: "blue", True: "red" }
+
+        savedStart = None
+        savedEnd = None
+
         for branch in branches:
-            temp_graph = self.createSubGraph(branch, str(i) + "_")
-            if branch == startBranch:
-                pass # draw arrow
+            prefix = str(i) + "_"
+            temp_graph = self.createSubGraph(branch, prefix)
+            if branch == startBranch and branch.repo == startBranch.repo:
+                savedStart = prefix + branch.commit.hexsha
             graph.subgraph(temp_graph)
             i += 1
 
-        temp_graph = self.createSubGraphRemote(str(i) + "_")
-        graph.subgraph(temp_graph)
+        for branch in self.remote.branches:
+            prefix = str(i) + "_"
+            temp_graph = self.createSubGraphRemote(branch, prefix)
+            graph.subgraph(temp_graph)
+            if branch == endBranch:
+                savedEnd = prefix + branch.commit.hexsha
+            i += 1
+	
+        if savedStart != None and savedEnd != None:
+            graph.edge(savedStart, savedEnd, color=colors[failed], constraint="false")
 
         return graph
+
+
+

@@ -36,8 +36,9 @@ class GitGraphDrawer():
 
     def push(self, branch: str) -> None:
         remote = self.currentRepo.remote("custom_remote")
-        summary = remote.push(branch)[0]
-        if remote.repo.head.commit.hexsha.startswith(summary.split("..").strip()[1]):
+        summary = remote.push(branch)[0].summary
+        hash_commit = remote.repo.head.commit.hexsha
+        if len(summary.split("..")) > 1 and hash_commit.startswith(summary.split("..")[1].strip()):
             #push successful
             return
         else:
@@ -50,9 +51,9 @@ class GitGraphDrawer():
         self.currentRepo.config_writer().set_value("user", "name", "myusername").release()
         self.currentRepo.config_writer().set_value("user", "email", "myemail@localhost").release()
 
-    def render(self, startBranch=None, endBranch=None) -> None:
+    def render(self, startBranch=None, endBranch=None, failed=False) -> None:
         ggraph = gitgraph.GitGraph([path.join("/locals", i) for i in listdir("/locals")])
-        ggraph.render(self.count, startBranch, endBranch)
+        ggraph.render(self.count, startBranch, endBranch, failed)
         self.count += 1
 
     def commit(self, commitMessage: str) -> None:
@@ -80,6 +81,8 @@ class GitGraphDrawer():
         for filename in listdir("/output"):
             if filename.endswith(".pdf"):
                 continue
+            if path.isdir(path.join("/output", filename)):
+                continue
 
             with open(path.join("/output", filename), 'r') as f:
                 file_data = f.read()
@@ -92,7 +95,7 @@ class GitGraphDrawer():
 
         template = Template(template_str)
         output = template.substitute({"data": data})
-
+        
         with open("/output/output.html", "w") as f:
             f.write(output)
 
@@ -111,8 +114,8 @@ if __name__ == '__main__':
     subparser = parser.add_subparsers(dest='subcommand')
 
     parser_push = subparser.add_parser('push')
-    parser_commit.add_argument("repository", default="custom_remote")# à changer
-    parser_commit.add_argument("branch", default="main")
+    parser_push.add_argument("repository", nargs='?', const="custom_remote", type=str, default="custom_remote")# à changer
+    parser_push.add_argument("branch", nargs='?', const="main", type=str, default="main")
 
     parser_commit = subparser.add_parser('commit')
     parser_commit.add_argument("-m")
@@ -133,7 +136,7 @@ if __name__ == '__main__':
 
             target = None
 
-            for branch in self.currentRepo.remote("custom_remote").repo.branches:
+            for branch in graphDrawer.currentRepo.remote("custom_remote").repo.branches:
                 if branch.name == args.branch:
                     target = branch
 
@@ -143,9 +146,9 @@ if __name__ == '__main__':
 
             try:
                 graphDrawer.push(args.branch)
-                graphDrawer.render()
+                graphDrawer.render(startBranch=graphDrawer.currentRepo.active_branch, endBranch=target, failed=False)
             except PushFailedException as e:
-                graphDrawer.render(startBranch=self.currentRepo.active_branch, endBranch=target)
+                graphDrawer.render(startBranch=graphDrawer.currentRepo.active_branch, endBranch=target, failed=True)
 
 
 
