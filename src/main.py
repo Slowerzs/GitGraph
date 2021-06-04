@@ -56,7 +56,7 @@ class GitGraphDrawer():
             raise PushFailedException(summary.strip())
 
 
-    def switch(self, gitName: str) -> None:
+    def change(self, gitName: str) -> None:
         """
         Changes the current local repo.
 
@@ -153,7 +153,7 @@ if __name__ == '__main__':
     with open("/commands.txt", "r") as f:
         commands = f.readlines()
 
-    assert commands[0].startswith("switch"), "The first command should be a switch statement"
+    assert commands[0].startswith("change"), "The first command should be a change statement"
 
     parser = argparse.ArgumentParser()
     subparser = parser.add_subparsers(dest='subcommand')
@@ -165,7 +165,7 @@ if __name__ == '__main__':
     parser_commit = subparser.add_parser('commit')
     parser_commit.add_argument("-m")
 
-    parser_commit = subparser.add_parser('switch')
+    parser_commit = subparser.add_parser('change')
     parser_commit.add_argument("branch_name")
 
     parser_commit = subparser.add_parser('add')
@@ -202,8 +202,8 @@ if __name__ == '__main__':
 
 
 
-        if args.subcommand == "switch":
-            graphDrawer.switch(args.branch_name)
+        if args.subcommand == "change":
+            graphDrawer.change(args.branch_name)
         if args.subcommand == "render":
             graphDrawer.render()
         if args.subcommand == "commit":
