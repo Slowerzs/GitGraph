@@ -1,10 +1,10 @@
-switch git1
+change git1
 add .
 commit -m "Hello from local1"
 render
 push
 render
-switch git2
+change git2
 add .
 commit -m "Hello from local2"
 render
