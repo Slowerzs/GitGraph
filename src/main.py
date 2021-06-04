@@ -10,13 +10,18 @@ from shutil import copytree
 from git import Repo, InvalidGitRepositoryError
 
 class PushFailedException(Exception):
+    """
+    Exception raised when the command "push" fails.
+    """
     def __init__(self, error_message):
         self.message = error_message
         super().__init__(error_message)
 
 class GitGraphDrawer():
-
     def __init__(self):
+        """
+        Initialize a GitGraphDrawer object.
+        """
         self.currentRepo = None
         self.count = 0
 
@@ -35,6 +40,11 @@ class GitGraphDrawer():
         repo1.git.push("custom_remote", "main")
 
     def push(self, branch: str) -> None:
+        """
+        Pushes on the branch gave in argument and raise an exception if failed.
+
+        branch -- the branch on which we are pushing
+        """
         remote = self.currentRepo.remote("custom_remote")
         summary = remote.push(branch)[0].summary
         hash_commit = remote.repo.head.commit.hexsha
@@ -44,24 +54,54 @@ class GitGraphDrawer():
         else:
             #push failed :(
             raise PushFailedException(summary.strip())
-            
+
 
     def switch(self, gitName: str) -> None:
+        """
+        Changes the current local repo.
+
+        gitName -- Indicates the new current local repo
+        """
         self.currentRepo = Repo(path.join("/locals", gitName))
         self.currentRepo.config_writer().set_value("user", "name", "myusername").release()
         self.currentRepo.config_writer().set_value("user", "email", "myemail@localhost").release()
 
     def pull(self, remote_branch: str) -> None:
+        """
+        Pulls from the remote branch.
+
+        remote_branch -- the remote branch from which we are pulling
+        """
         self.currentRepo.git.pull("custom_origin", remote_branch)
 
     def render(self, startBranch=None, endBranch=None, failed=False) -> None:
+        """
+        Renders the current state of the all the branches (local and remote).
+
+        startBranch -- if we have to draw an Arrow, the starting point
+        endBranch -- the ending point of the arrow
+        failed -- If we draw an error, is it red or blue
+        """
         ggraph = gitgraph.GitGraph([path.join("/locals", i) for i in listdir("/locals")])
         ggraph.render(self.count, startBranch, endBranch, failed)
 
     def commit(self, commitMessage: str) -> None:
+        """
+        Commits changes to the current repo.
+
+        commitMessage -- the message of the commit
+        """
         self.currentRepo.git.commit(m=commitMessage)
 
     def add(self, pathToAdd: str) -> None:
+        """
+        Adds files to the staging area.
+        If the file does not exist, it creates a empty file.
+        If the file exists, it appends some random content in it.
+        If the path is a directory, it creates an empty file with a random name.
+
+        pathToAdd -- the relative path to a file or directory
+        """
         fullPath = path.join(self.currentRepo.working_dir, pathToAdd)
         if path.isfile(fullPath):
             #Modifications are needed for add to work, so we add random content
@@ -78,8 +118,11 @@ class GitGraphDrawer():
             self.currentRepo.git.add(pathToAdd)
 
     def generateHtml(self) -> None:
+        """
+        Generates the HTML animation from the template and all the generated dot files.
+        """
         files_data = []
-    
+
         for filename in listdir("/output"):
             if filename.endswith(".pdf"):
                 continue
@@ -97,7 +140,7 @@ class GitGraphDrawer():
 
         template = Template(template_str)
         output = template.substitute({"data": data})
-        
+
         with open("/output/output.html", "w") as f:
             f.write(output)
 
@@ -138,7 +181,7 @@ if __name__ == '__main__':
         args = parser.parse_args(shlex.split(command))
 
         if args.subcommand == "push":
-            
+
 
             target = None
 
@@ -169,5 +212,3 @@ if __name__ == '__main__':
             graphDrawer.add(args.path)
 
     graphDrawer.generateHtml()
-
-
