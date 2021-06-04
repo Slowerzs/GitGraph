@@ -18,7 +18,7 @@ class GitGraphDrawer():
 
     def __init__(self):
         self.currentRepo = None
-        self.count = 1
+        self.count = 0
 
         copytree("/sources", "/locals")
 
@@ -57,7 +57,6 @@ class GitGraphDrawer():
     def render(self, startBranch=None, endBranch=None, failed=False) -> None:
         ggraph = gitgraph.GitGraph([path.join("/locals", i) for i in listdir("/locals")])
         ggraph.render(self.count, startBranch, endBranch, failed)
-        self.count += 1
 
     def commit(self, commitMessage: str) -> None:
         self.currentRepo.git.commit(m=commitMessage)
@@ -131,7 +130,11 @@ if __name__ == '__main__':
 
     parser_commit = subparser.add_parser('render')
 
-    for command in commands:
+    for command_line in range(len(commands)):
+
+        graphDrawer.count = command_line + 1
+
+        command = commands[command_line]
         args = parser.parse_args(shlex.split(command))
 
         if args.subcommand == "push":
