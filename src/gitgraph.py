@@ -50,7 +50,7 @@ class GitGraph:
         """
         repo = self.remote
         graph = Digraph(name="cluster" + prefix.split("_")[0])
-        graph.node(prefix+"remote", label="Dépot distant", color="grey", fontcolor="grey")
+        graph.node(prefix+"remote", label="Dépot distant - " + branch.name, color="grey", fontcolor="grey")
         graph.edge(prefix+"remote", prefix + branch.commit.hexsha, color="grey")
         for ref in repo.iter_commits(branch.name):
             graph.node(prefix + ref.hexsha, label=ref.message.strip())
@@ -67,7 +67,7 @@ class GitGraph:
         """
         graph = Digraph(name="cluster" + prefix.split("_")[0])
         repo = branch.repo
-        graph.node(prefix+"local", label="Dépot local " + prefix[:-1], color="grey", fontcolor="grey")
+        graph.node(prefix+"local", label="Dépot local " + prefix[:-1] + " - " + branch.name, color="grey", fontcolor="grey")
         graph.edge(prefix+"local", prefix + branch.commit.hexsha, color="grey")
         for ref in repo.iter_commits(branch):
             graph.node(prefix + ref.hexsha, label=ref.message.strip())

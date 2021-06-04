@@ -5,8 +5,9 @@
 <script src="https://unpkg.com/@hpcc-js/wasm@0.3.11/dist/index.min.js"></script>
 <script src="https://unpkg.com/d3-graphviz@3.0.5/build/d3-graphviz.js"></script>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-+0n0xVW2eSR5OomGNYDnhzAbDsOXxcvSN1TPprVMTNDbiYZCxYbOOl7+AMvyTG2x" crossorigin="anonymous">
-<button type="button" onclick="render(-1)" class="btn btn-outline-warning">Previous</button>
-<button type="button" onclick="render(1)" class="btn btn-outline-warning">Next</button>
+<button type="button" onclick="render(-1)" class="btn btn-warning">Previous</button>
+<button type="button" onclick="render(1)" class="btn btn-warning">Next</button>
+<p id="commands"></p>
 <div id="graph" style="text-align: center;"></div>
 <script>
 
@@ -28,6 +29,7 @@ function render(i) {
     var dot = dots[dotIndex];
     graphviz
         .renderDot(dot);
+    document.getElementById("commands").innerHTML = commands[dotIndex];
 }
 
 var dots = [

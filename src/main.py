@@ -1,5 +1,6 @@
 import gitgraph
 import sys
+from typing import List
 from string import Template
 from os import listdir, path, urandom
 from graphviz import Digraph
@@ -117,7 +118,7 @@ class GitGraphDrawer():
             open(fullPath, "w").close()
             self.currentRepo.git.add(pathToAdd)
 
-    def generateHtml(self, command_list: List[List]) -> None:
+    def generateHtml(self, command_list: List[list]) -> None:
         """
         Generates the HTML animation from the template and all the generated dot files, with the list of commands.
 
@@ -135,17 +136,24 @@ class GitGraphDrawer():
                 file_data = f.read()
                 files_data.append('`' + file_data.replace('`', '\\`') + '`')
 
+        with open("template.html", "r") as f:
+            template_str = f.read()
+        
         data = ','.join(map(str, files_data))
 
         commands = []
         for i in command_list:
-            commands.append(','.join(map(str, i)))
+            commands.append('<br/>'.join(map(str, i)))
 
-        with open("template.html", "r") as f:
-            template_str = f.read()
+        for i in range(len(commands)):
+            commands[i] = '`' + commands[i].replace('`', '\\`') + '`'
+
+
+
+        render_commands = ','.join(map(str, commands))
 
         template = Template(template_str)
-        output = template.substitute({"dots": data, "commands": commands})
+        output = template.substitute({"dots": data, "commands": render_commands})
 
         with open("/output/output.html", "w") as f:
             f.write(output)
@@ -202,7 +210,7 @@ if __name__ == '__main__':
                 print("push to non existant branch")
                 sys.exit(1)
 
-            current_list.append(command)
+            current_list.append(command.strip())
             command_list.append(current_list)
             current_list = []
 
@@ -223,9 +231,9 @@ if __name__ == '__main__':
             current_list = []
         if args.subcommand == "commit":
             graphDrawer.commit(args.m)
-            current_list.append(command)
+            current_list.append(command.strip())
         if args.subcommand == "add":
             graphDrawer.add(args.path)
-            current_list.append(command)
+            current_list.append(command.strip())
 
     graphDrawer.generateHtml(command_list)
