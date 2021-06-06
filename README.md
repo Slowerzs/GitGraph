@@ -37,8 +37,8 @@ render
 
 - The following git commands are available : 
 
-  ```
+```
 add [directory or file] 
 commit -m [message]
 push [target branch (default main)]
-
+```
