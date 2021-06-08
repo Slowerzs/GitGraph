@@ -2,7 +2,7 @@ import gitgraph
 import sys
 from typing import List
 from string import Template
-from os import listdir, path, urandom
+from os import listdir, path, urandom, remove
 from graphviz import Digraph
 from git import Repo
 import shlex
@@ -37,8 +37,8 @@ class GitGraphDrawer():
             print("Un des dossiers proposé n'est pas un dépot git.")
             sys.exit(1)
 
-        repo1 = Repo("/locals/git1")
-        repo1.git.push("custom_remote", "main")
+        repo1 = Repo("/locals/git1") # TODO : add a way to specify the repo used as source for the newly created remote
+        repo1.git.push("custom_remote", "main") 
 
     def push(self, branch: str) -> None:
         """
