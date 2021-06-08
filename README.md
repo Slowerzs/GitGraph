@@ -4,11 +4,28 @@ This project aims to generate dot files and pdf formats of git repositories stat
 
 ## Usage 
 
-`docker build -t gitgraph .`
+### Building :
+
+Build the Docker image
+
+```
+git clone https://github.com/Slowerzs/GitGraph
+cd GitGraph
+docker build -t gitgraph .
+```
+
+### Running :
+
+Run the docker container, using the following flags.
 
 `docker run -v </path/to/repo1>:/sources/git1 -v </path/to/repo2>:/sources/git2 -v </path/to/commands.txt>:/commands.txt -v </output/folder>:/output gitgraph`
 
-The output directory must be empty. Git repositories on the host machine are left unmodified.
+Mount host directories and files which are git repositories, the `commands.txt` file and the output folder inside the container using `-v` flag.
+One or more git repositories may be specified.
+
+**The output directory must be empty**. 
+
+Git repositories on the host machine are left unmodified.
 
 Example commands.txt with currently supported commands :
 
